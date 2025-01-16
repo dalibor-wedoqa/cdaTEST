@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>XML Structure Comparison</title>
+		<title>XML Substructure Check</title>
 	</head>
 	<body>
 		<h1>XML Substructure Check</h1>
@@ -49,10 +49,15 @@
 					if (end === -1) break;
 
 					const tag = xmlText.substring(start + 1, end).trim();
-					// Ignore closing tags and self-closing tags
-					if (!tag.startsWith("/") && !tag.endsWith("/")) {
+					// Ignore comments, closing tags, and self-closing tags
+					if (
+						!tag.startsWith("!--") &&
+						!tag.startsWith("/") &&
+						!tag.endsWith("/")
+					) {
 						tags.push(tag);
 					}
+
 					index = end + 1;
 				}
 
