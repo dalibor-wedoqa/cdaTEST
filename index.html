@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>XML Structure Comparison</title>
+	</head>
+	<body>
+		<h1>XML Structure Comparison Tool</h1>
+		<textarea
+			id="xmlA"
+			rows="15"
+			cols="70"
+			placeholder="Paste XML A here..."
+		></textarea
+		><br /><br />
+		<textarea
+			id="xmlB"
+			rows="15"
+			cols="70"
+			placeholder="Paste XML B here..."
+		></textarea
+		><br /><br />
+		<button onclick="compareXMLStructures()">Compare Structures</button>
+		<p id="result"></p>
+		<div id="differences"></div>
+
+		<script>
+			function extractTags(xmlText) {
+				const tags = [];
+				let index = 0;
+
+				while (index < xmlText.length) {
+					const start = xmlText.indexOf("<", index);
+					if (start === -1) break;
+
+					const end = xmlText.indexOf(">", start);
+					if (end === -1) break;
+
+					tags.push(xmlText.substring(start, end + 1));
+					index = end + 1;
+				}
+
+				return tags;
+			}
+
+			function compareStructures(tagsA, tagsB) {
+				const differences = [];
+				let indexB = 0;
+
+				for (let i = 0; i < tagsA.length; i++) {
+					const tagA = tagsA[i];
+					indexB = tagsB.indexOf(tagA, indexB);
+					if (indexB === -1) {
+						differences.push({
+							level: i + 1,
+							tag: tagA,
+							message: `Tag \"${tagA}\" from XML A not found in XML B.`,
+						});
+					} else {
+						indexB++;
+					}
+				}
+
+				for (let i = 0; i < tagsB.length; i++) {
+					if (!tagsA.includes(tagsB[i])) {
+						differences.push({
+							level: i + 1,
+							tag: tagsB[i],
+							message: `Extra tag \"${tagsB[i]}\" found in XML B that is not in XML A.`,
+						});
+					}
+				}
+
+				return differences;
+			}
+
+			function compareXMLStructures() {
+				const xmlAText = document.getElementById("xmlA").value.trim();
+				const xmlBText = document.getElementById("xmlB").value.trim();
+				const resultElement = document.getElementById("result");
+				const differencesElement = document.getElementById("differences");
+
+				if (!xmlAText || !xmlBText) {
+					resultElement.textContent = "Please provide both XML inputs.";
+					differencesElement.innerHTML = "";
+					return;
+				}
+
+				const tagsA = extractTags(xmlAText);
+				const tagsB = extractTags(xmlBText);
+
+				if (tagsA.length === 0 || tagsB.length === 0) {
+					resultElement.textContent =
+						"Error: Unable to extract tags from one or both inputs.";
+					differencesElement.innerHTML = "";
+					return;
+				}
+
+				const differences = compareStructures(tagsA, tagsB);
+
+				if (differences.length === 0) {
+					resultElement.textContent = "XML A structure is a subset of XML B.";
+					differencesElement.innerHTML = "";
+				} else {
+					resultElement.textContent =
+						"XML A structure is NOT a subset of XML B.";
+					differencesElement.innerHTML =
+						"<h3>Differences:</h3>" +
+						differences
+							.map(
+								(diff) =>
+									`<p>Level ${diff.level}: ${diff.message}<br>Tag: ${diff.tag}</p>`
+							)
+							.join("");
+				}
+			}
+		</script>
+	</body>
+</html>
