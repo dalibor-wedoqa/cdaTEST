@@ -55,7 +55,9 @@
 						!tag.startsWith("/") &&
 						!tag.endsWith("/")
 					) {
-						tags.push(tag);
+						// Extract only the first word or first five characters of the tag
+						const extracted = tag.split(" ")[0].substring(0, 5);
+						tags.push(extracted);
 					}
 
 					index = end + 1;
